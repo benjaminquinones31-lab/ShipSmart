@@ -45,7 +45,17 @@ def build_index(records, key):
     Example: records with ids A, B, A  ->  ({"A": ..., "B": ...}, ["A"])
     Target: expected O(n) time.
     """
-    raise NotImplementedError("Part 1: build_index")
+    index = {} # Keep the first record for each key value in a dictionary
+    duplicates = [] # Keep track of duplicate key values in a list
+
+    for record in records: # Goes through every record to build the index.
+        value = record[key] # Read the tracking number from the current order.
+        if value in index:  # Checks if dictionary already has a record under this value
+            duplicates.append(value) # Adds the repeat to the list
+        else: 
+            #First time seeing this value, add it to the dictionary
+            index[value] = record # Save the whole order under its tracking number
+    return index, duplicates #After checking every record, return both results 
 
 
 # =====================================================================
@@ -61,7 +71,29 @@ def merge_sort(items, key=lambda x: x):
               (when the keys are equal, take from the LEFT half -> stable)
     Target: O(n log n).
     """
-    raise NotImplementedError("Part 2: merge_sort")
+    if len(items) <= 1: # Does the list have 1 or 0 items
+        return items.copy() #Returns new list 
+    middle = len(items) // 2 #Finds the middle index of the list
+    left = items[:middle] #Take everything before the middle
+    right = items[middle:] #Take everything at and after the middle
+    left = merge_sort(left, key) #Sort left side using the same key
+    right = merge_sort(right, key) #Sort right side using the same key
+
+    merged = [] #Create a new list to hold the sorted items
+    left_pos = 0 #Position of the next unused item in the left 
+    right_pos = 0 #Position of the next unused item in the right
+
+    while left_pos < len(left) and right_pos < len(right): #While there are still items in both lists
+        if key(left[left_pos]) <= key(right[right_pos]): #Compare keys if they tie, take the left one first
+            merged.append(left[left_pos]) #Add the left item to the merged list
+            left_pos += 1 #Move to the next item in the left list
+        else: #If the right item is smaller than the left item
+            merged.append(right[right_pos]) #Add the right item to the merged list
+            right_pos += 1 #Move to the next item in the right list
+
+    merged.extend(left[left_pos:]) #Add any remaining items from the left list
+    merged.extend(right[right_pos:]) #Add any remaining items from the right list
+    return merged #Return the new sorted list
 
 
 def lower_bound(sorted_items, target, key=lambda x: x):
@@ -73,9 +105,15 @@ def lower_bound(sorted_items, target, key=lambda x: x):
     Example: [1, 3, 3, 5, 9] with target 3 -> 1,  target 4 -> 3,  target 10 -> 5
     Target: O(log n).  Keep two pointers lo, hi and halve the range each step.
     """
-    raise NotImplementedError("Part 2: lower_bound")
-
-
+    lo = 0 #Start at first index
+    hi = len(sorted_items) #Start at the length of the list
+    while lo < hi: #While the lower bound is less than the upper bound
+        mid = (lo + hi) // 2 #Find the middle index
+        if key(sorted_items[mid]) < target: #If the middle item is less than the target
+            lo = mid + 1 #Skip middle item and search to its right
+        else: #If the middle item is greater than or equal to the target
+            hi = mid #This index could be the answer, check the left side for a smaller index
+    return lo # The first position where the value is at least the target.
 # =====================================================================
 # PART 3 - Priority queue (binary min-heap)                    (Week 11)
 # =====================================================================
