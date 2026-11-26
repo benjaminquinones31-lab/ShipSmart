@@ -136,19 +136,53 @@ class MinHeap:
 
     def push(self, priority, item):
         """Add an item. Append at the end, then 'bubble up'. O(log n)."""
-        raise NotImplementedError("Part 3: MinHeap.push")
+        entry = (priority, self._count, item) #Save priority, arrival number , and order together
+        self._a.append(entry) #Add New entry at the end of list
+        self._count += 1 # Give the next order a new arrival number
+
+        pos = len(self._a) - 1 # New order is at the last index
+        while pos > 0: # Index 0 is the top, stop when we reach it
+            parent = (pos - 1) // 2 #Find the index directly above this order
+            if self._a[parent][:2] <= self._a[pos][:2]: # Compare priority first, if they tie, earlier arrival goes first.
+                break # The parent goes first, so stop moving the new order up.
+            self._a[pos], self._a[parent] = self._a[parent], self._a[pos] # Swap the two orders
+            pos = parent # Follow the new order to its new position
+            
 
     def peek(self):
         """Return (priority, item) with the smallest priority without removing it.
         Raise IndexError if the heap is empty. O(1)."""
-        raise NotImplementedError("Part 3: MinHeap.peek")
+        if len(self._a) == 0:
+            raise IndexError("Cannot peek into an empty heap") # If there are no orders raise IndexError
+        priority, _, item = self._a[0] # Read the to entry, the _ ignores the arrival number
+        return priority, item # Return the priority and order without removing it
 
     def pop(self):
         """Remove and return (priority, item) with the smallest priority.
         Move the last entry to the top, then 'bubble down'.
         Raise IndexError if the heap is empty. O(log n)."""
-        raise NotImplementedError("Part 3: MinHeap.pop")
+        next_order = self.peek() # Get the top order without removing it
+        last_entry = self._a.pop() # Remove the last entry from the list
 
+        if len(self._a) == 0:
+            return next_order # Only one order in the queue
+
+        self._a[0] = last_entry # Replace the top order with the entry we took from the end
+        pos = 0 # The entry we moved from the end is now at the top
+        while 2 * pos + 1 < len(self._a): # Does this entry have a child ?
+            left = 2 * pos + 1 # Index of the left child
+            right = left + 1 # Index of the right child
+            smaller = left # Start with left child
+            if right < len(self._a) and self._a[right][:2] < self._a[left][:2]: # If the right child exists and goes first choose it
+                smaller = right # 
+            if self._a[pos][:2] <= self._a[smaller][:2]: # If the current entry goes first, stop moving it down
+                break
+            self._a[pos], self._a[smaller] = self._a[smaller], self._a[pos]
+            pos = smaller
+
+        return next_order
+
+        
 
 # =====================================================================
 # PART 4 - Greedy                                               (Week 5)
